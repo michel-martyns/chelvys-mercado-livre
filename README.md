@@ -1,63 +1,110 @@
 # Chelvys - Mercado Livre Automação
 
-Sistema de automação para publicação de produtos WeDrop no Mercado Livre.
+Sistema de automação para publicação de produtos WeDrop no Mercado Livre com processamento de imagens via IA.
 
 ## Visão Geral
 
-Este projeto automatiza o fluxo completo de:
+```
+┌─────────────┐    ┌──────────────┐    ┌─────────────┐    ┌──────────────┐
+│   WeDrop    │ -> │  Processador │ -> │  GCS/URLs   │ -> │  Mercado     │
+│  (extrair)  │    │   (imagens)  │    │  (hospedar) │    │   Livre      │
+└─────────────┘    └──────────────┘    └─────────────┘    └──────────────┘
+```
 
-1. **Extração** de produtos do catálogo WeDrop (dropshipping)
-2. **Enriquecimento** de dados com IA (títulos, descrições, atributos)
-3. **Processamento** de imagens (redimensionar, remover fundo, otimizar)
-4. **Publicação** automática no Mercado Livre via API
+## Funcionalidades
+
+- **Extração WeDrop**: Scraping de produtos do catálogo (ID, nome, preço, imagens, descrição)
+- **Classificação LLM**: Uso de IA para mapear produto → categoria MLB correta
+- **Processamento de Imagens**:
+  - Redimensionamento para 1200x1200px (padrão ML 2026)
+  - AI Enhance (nitidez, contraste, saturação, brilho)
+  - Remoção de fundo
+  - Otimização de peso (< 2MB)
+- **Upload GCS**: Hospedagem em `gs://chelvys-ml-images/mercado-livre/{nome-normalizado}/`
+- **Publicação ML**: API User Products (vendedor com tag `user_product_seller`)
 
 ## Estrutura do Projeto
 
 ```
 chelvys-mercado-livre/
-├── docs/                      # Documentação
-│   ├── API_PUBLICACAO.md      # API do Mercado Livre
-│   ├── FLUXO_PROCESSAMENTO.md # Fluxo WeDrop → ML
-│   └── SETUP_MERCADO_LIVRE.md # Setup das credenciais
-├── src/                       # Código fonte (a implementar)
-├── data/                      # Dados processados
-├── .env                       # Credenciais (NÃO COMMITAR)
-├── .env.example               # Exemplo de .env
-├── .gitignore
+├── docs/
+│   ├── API_PUBLICACAO.md         # API Mercado Livre
+│   ├── FLUXO_PROCESSAMENTO.md    # Fluxo imagens
+│   ├── DEPLOY_CLOUD_RUN.md       # OAuth callback
+│   ├── IMPLEMENTACAO_USER_PRODUCTS.md  # User Products API
+│   └── PIPELINE_COMPLETO.md      # Documentação completa
+├── src/
+│   ├── main.py                   # Pipeline principal
+│   ├── test_pipeline.py          # Teste com mock
+│   ├── test_user_products.py     # Teste User Products
+│   ├── oauth_callback/
+│   │   └── main.py              # FastAPI OAuth
+│   ├── wedrop/
+│   │   └── extractor.py         # Scraper WeDrop
+│   ├── images/
+│   │   ├── processor.py         # Processamento imagens
+│   │   └── uploader.py          # Upload GCS
+│   └── utils/
+│       └── llm_category.py      # Classificador LLM
+├── data/processed/               # JSONs salvos
 ├── requirements.txt
+├── .env                          # Credenciais
 └── README.md
 ```
 
 ## Credenciais Configuradas
 
-| Serviço | Status |
-|---------|--------|
-| WeDrop | ✅ Configurado |
-| Mercado Livre API | ✅ App ID e Secret Key salvos |
-| Google Cloud | ✅ Service Account configurada |
+| Serviço | Status | Detalhes |
+|---------|--------|----------|
+| WeDrop | ✅ | michelmartins70150@gmail.com |
+| Mercado Livre | ✅ | App: 2968420069553527 |
+| Google Cloud | ✅ | chelvys-3969c91a2439 |
+| OAuth Callback | ✅ | Cloud Run deployado |
 
 ## Links Úteis
 
 - [WeDrop Dashboard](https://dash.wedrop.com.br/)
-- [Catálogo Configurado (32425)](https://dash.wedrop.com.br/catalog/32425)
-- [Mercado Livre Developers](https://developers.mercadolivre.com.br/)
+- [Produto Teste 32425](https://dash.wedrop.com.br/catalog/32425)
+- [Mercado Livre Developers](https://developers.mercadolibre.com/)
 - [Google Cloud Console](https://console.cloud.google.com/)
 
-## Próximos Passos
-
-1. Configurar OAuth callback no Cloud Run
-2. Obter Access Token do Mercado Livre
-3. Implementar extractor WeDrop
-4. Implementar pipeline de publicação
-
-## Ambiente
+## Instalação
 
 ```bash
 # Instalar dependências
 pip install -r requirements.txt
 
-# Copiar exemplo de .env
-cp .env.example .env
+# Configurar variáveis de ambiente
+# Editar .env com credenciais
 
-# Editar .env com suas credenciais
+# Configurar GCP ADC (local)
+export GOOGLE_APPLICATION_CREDENTIALS="c:\Users\miche\OneDrive\Documentos\GitHub\.service-account\chelvys-3969c91a2439.json"
 ```
+
+## Uso
+
+```bash
+# Pipeline completo
+python src/main.py
+
+# Teste com mock
+python src/test_pipeline.py
+
+# Teste User Products API
+python src/test_user_products.py
+```
+
+## Status Atual
+
+| Componente | Status |
+|------------|--------|
+| OAuth ML | ✅ Funcional |
+| WeDrop Extractor | ⚠️ Parcial |
+| Image Processor | ✅ Funcional |
+| GCS Uploader | ⚠️ ADC local |
+| ML User Products API | 🔍 Descoberta |
+| LLM Categoria | ✅ Implementado |
+
+## Documentação Completa
+
+Ver [docs/PIPELINE_COMPLETO.md](docs/PIPELINE_COMPLETO.md) para detalhes técnicos.

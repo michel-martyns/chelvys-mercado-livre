@@ -32,3 +32,6 @@ structlog>=23.2.0
 # Tests (opcional)
 pytest>=7.4.0
 pytest-asyncio>=0.21.0
+
+# LLM e AI
+anthropic>=0.40.0
