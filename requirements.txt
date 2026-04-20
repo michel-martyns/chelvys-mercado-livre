@@ -8,6 +8,8 @@ webdriver-manager>=4.0.0
 # Processamento de Imagens
 Pillow>=10.0.0
 opencv-python-headless>=4.8.0
+# Real-ESRGAN (opcional, para upscaling com IA real)
+# pip install realesrgan-opencv
 
 # API e Web
 fastapi>=0.104.0
