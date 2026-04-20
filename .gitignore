@@ -1,0 +1,60 @@
+# Credenciais e segredos
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+credentials.json
+secrets.json
+
+# Dependências
+node_modules/
+vendor/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Build
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# Data
+data/raw/*
+data/processed/*
+data/images/*
+!data/.gitkeep
+
+# Tests
+.pytest_cache/
+.coverage
+htmlcov/
+
+# mypy
+.mypy_cache/

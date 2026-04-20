@@ -1,0 +1,32 @@
+# HTTP e Scraping
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+selenium>=4.15.0
+webdriver-manager>=4.0.0
+
+# Processamento de Imagens
+Pillow>=10.0.0
+opencv-python-headless>=4.8.0
+
+# API e Web
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
+
+# Utilitários
+python-dotenv>=1.0.0
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+tenacity>=8.2.0  # Retry logic
+
+# Google Cloud (Cloud Run)
+google-cloud-run>=0.4.0
+google-cloud-storage>=2.10.0
+
+# Logs e Monitoramento
+structlog>=23.2.0
+
+# Tests (opcional)
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
