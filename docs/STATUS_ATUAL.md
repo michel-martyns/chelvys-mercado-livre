@@ -6,97 +6,110 @@
 
 ## Resumo Executivo
 
-Sistema de automação para publicação de produtos WeDrop no Mercado Livre está em fase de **configuração inicial**.
+Sistema de automação para publicação de produtos WeDrop no Mercado Livre.
+
+**Status:** OAuth configurado ✅ | API do ML operacional ✅ | WeDrop: Pendente
 
 ---
 
 ## Concluído ✅
 
 ### 1. Estrutura do Projeto
-- [x] Repositório GitHub criado: https://github.com/michel-martyns/chelvys-mercado-livre
-- [x] Primeiro commit realizado (sem credenciais)
-- [x] Service Account salva localmente (não commitada)
+- [x] Repositório GitHub: https://github.com/michel-martyns/chelvys-mercado-livre
+- [x] Service Account GCP configurada (local, não commitada)
 
 ### 2. Documentação
-- [x] API_PUBLICACAO.md - Documentação completa da API ML
+- [x] API_PUBLICACAO.md - API completa do Mercado Livre
 - [x] FLUXO_PROCESSAMENTO.md - Fluxo WeDrop → ML
 - [x] SETUP_MERCADO_LIVRE.md - Setup de credenciais
 - [x] DEPLOY_CLOUD_RUN.md - Deploy no GCP
 - [x] STATUS_ATUAL.md - Este arquivo
+- [x] PROXIMOS_PASSOS.md - Próximos passos
 
 ### 3. Código
 - [x] OAuth Callback (FastAPI) para Cloud Run
 - [x] Dockerfile configurado
 - [x] Script deploy.sh automatizado
+- [x] Script get_tokens.py (local com PKCE)
 
 ### 4. Credenciais Salvas
-- [x] WeDrop: `michelmartins70150@gmail.com` / `Xuxu1808*`
+- [x] WeDrop: `michelmartins70150@gmail.com`
 - [x] Mercado Livre App ID: `2968420069553527`
 - [x] Mercado Livre Secret Key: `lyKuvr5QcDGknAnxUksoOlKDBhaj8GRS`
-- [x] GCP Service Account: `michel@chelvys.iam.gserviceaccount.com`
+- [x] **Access Token:** `APP_USR-2968420069553527-041921-cf19ac2b605ff9ed75591d0f0e9d6fdf-384397682`
+- [x] **Refresh Token:** `TG-69e5889e7e4eae000186cbd1-384397682`
 
 ### 5. GCP Configurado
 - [x] Projeto `chelvys` ativo
-- [x] Cloud Resource Manager API habilitada
-- [x] Artifact Registry criado: `chelvys-docker` (southamerica-east1)
+- [x] APIs habilitadas: Run, Artifact Registry, Cloud Build, Secret Manager
+- [x] Artifact Registry: `chelvys-docker` (southamerica-east1)
+
+### 6. Cloud Run
+- [x] Serviço: `ml-oauth-callback`
+- [x] URL: https://ml-oauth-callback-783579532864.southamerica-east1.run.app
+- [x] OAuth testado e aprovado
+
+### 7. API Mercado Livre
+- [x] Access Token válido
+- [x] User ID: **384397682** (CHELVYS)
+- [x] API testada: `/users/me` funcionando
 
 ---
 
 ## Pendente ⏳
 
-### 1. Deploy Cloud Run (Concluído ✅)
-- [x] Build da imagem Docker
-- [x] Deploy do serviço `ml-oauth-callback`
-- [x] URL: https://ml-oauth-callback-783579532864.southamerica-east1.run.app
-- [ ] Configurar URL no Mercado Livre (Redirect URI)
-- [ ] Obter Access Token
-
-### 2. Implementação WeDrop
-- [ ] Criar extractor (scraping)
+### 1. Implementação WeDrop
+- [ ] Criar extractor (scraping/login)
 - [ ] Modelos de dados
-- [ ] Salvar dados brutos
+- [ ] Salvar dados brutos (JSON)
 
-### 3. Implementação Mercado Livre
-- [ ] Cliente API
+### 2. Enriquecimento de Dados
+- [ ] Prompt para títulos (IA)
+- [ ] Prompt para descrições (IA)
+- [ ] Mapeamento de categorias WeDrop → ML
+- [ ] Atributos específicos por categoria
+
+### 3. Processamento de Imagens
+- [ ] Download automático
+- [ ] Redimensionar (min 1000x1000)
+- [ ] Remover fundo/marcas
+- [ ] Upload para GCS/CDN
+
+### 4. Publicação Mercado Livre
+- [ ] Cliente API completo
 - [ ] Publicação de produtos
 - [ ] Validação de dados
-
-### 4. Pipeline Completo
-- [ ] Orquestração
-- [ ] Logs e monitoramento
 - [ ] Tratamento de erros
 
----
-
-## Próximos Passos Imediatos
-
-1. **Build Docker** - Corrigir Dockerfile e buildar imagem
-2. **Deploy Cloud Run** - Subir serviço de OAuth callback
-3. **Configurar ML** - Adicionar redirect URI no Mercado Livre
-4. **Obter Token** - Completar fluxo OAuth
+### 5. Automação
+- [ ] Pipeline completo
+- [ ] Logs e monitoramento
+- [ ] Retry com backoff
+- [ ] Dashboard de status
 
 ---
 
-## Comandos para Continuar
+## Comandos Úteis
 
+### OAuth/Token
 ```bash
-# Navegar para diretório do oauth
-cd chelvys-mercado-livre/src/oauth_callback
+# Testar API
+curl -H "Authorization: Bearer APP_USR-2968420069553527-041921-cf19ac2b605ff9ed75591d0f0e9d6fdf-384397682" \
+  "https://api.mercadolibre.com/users/me"
 
-# Build da imagem
-gcloud builds submit --tag southamerica-east1-docker.pkg.dev/chelvys/chelvys-docker/ml-oauth-callback:latest --project=chelvys
+# Refresh token
+curl -X POST "https://api.mercadolibre.com/oauth/token" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "client_id=2968420069553527&client_secret=lyKuvr5QcDGknAnxUksoOlKDBhaj8GRS&grant_type=refresh_token&refresh_token=TG-69e5889e7e4eae000186cbd1-384397682"
+```
 
-# Deploy no Cloud Run
-gcloud run deploy ml-oauth-callback \
-  --image southamerica-east1-docker.pkg.dev/chelvys/chelvys-docker/ml-oauth-callback:latest \
-  --platform managed \
-  --region southamerica-east1 \
-  --allow-unauthenticated \
-  --memory 256Mi \
-  --min-instances 0 \
-  --max-instances 1 \
-  --set-env-vars="MERCADOLIVRE_APP_ID=2968420069553527,MERCADOLIVRE_SECRET_KEY=lyKuvr5QcDGknAnxUksoOlKDBhaj8GRS" \
-  --project=chelvys
+### Cloud Run
+```bash
+# Ver logs
+gcloud run services logs tail ml-oauth-callback --region southamerica-east1 --project chelvys
+
+# Ver status
+gcloud run services describe ml-oauth-callback --region southamerica-east1 --project chelvys
 ```
 
 ---
@@ -104,25 +117,17 @@ gcloud run deploy ml-oauth-callback \
 ## Arquitetura
 
 ```
-┌─────────────┐     ┌──────────────┐     ┌─────────────┐
-│   WeDrop    │────▶│  Extractor   │────▶│ Enriqueci-  │
-│  Catálogo   │     │  (Scraping)  │     │   mento     │
-└─────────────┘     └──────────────┘     └─────────────┘
-                                                 │
-                                                 ▼
-┌─────────────┐     ┌──────────────┐     ┌─────────────┐
-│  Mercado    │◀────│   Publicador │◀────│  Imagens    │
-│   Livre     │     │    (API)     │     │  (GCS/CDN)  │
-└─────────────┘     └──────────────┘     └─────────────┘
+WeDrop → Extractor → Enriquecimento (IA) → Imagens (GCS) → ML API → Publicado
+                              ↓
+                      Cloud Run OAuth
 ```
 
 ---
 
-## Custos Estimados (GCP)
+## Custos (GCP)
 
-| Serviço | Uso | Custo Mensal |
-|---------|-----|--------------|
-| Cloud Run | 2-10 req/dia | ~$0 (free tier) |
-| Artifact Registry | 1 imagem | ~$0 (5GB free) |
-| Cloud Storage | Imagens produtos | ~$0-5 (depende do volume) |
-| **Total** | | **~$0-5/mês** |
+| Serviço | Custo |
+|---------|-------|
+| Cloud Run | ~$0/mês |
+| Artifact Registry | ~$0/mês |
+| Cloud Storage | ~$0-5/mês |
