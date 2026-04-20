@@ -7,7 +7,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copiar código
-COPY src/oauth_callback/ ./
+COPY main.py .
 
 # Expor porta
 ENV PORT=8080
